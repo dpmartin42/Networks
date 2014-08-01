@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title> Les Mis sigma demo by dpmartin42</title>
+  
+	<!-- Import Sigma JS, JQuery, and css -->
+	<script type="text/javascript" src="../js/sigma.min.js"></script>
+	<script type="text/javascript" src="../js/jquery-1.8.3.js"></script>
+	<script type="text/javascript" src="../js/jquery.smart_autocomplete.js"></script>
+	<script type="text/javascript" src="../js/sigma.parsers.json.js"></script>
+	<script type="text/javascript" src="../js/plotJsonNetwork.js"></script>
+	
+	<link rel="stylesheet" type="text/css" href="../css/network.css">
+    <link rel="stylesheet" type="text/css" href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css">
+  
+</head>
+
+<body>
+  <div id="main">
+    
+    <div class="sigma-container">
+        <div id="container"></div>
+    </div>
+    
+    <div class="control-panel">
+        <div class="move-up">
+            <button type="button">
+                <i class="icon-arrow-up"></i>
+            </button>
+        </div>
+        <div class="move-down">
+            <button type="button">
+                <i class="icon-arrow-down"></i>
+            </button>
+        </div>
+        <div class="move-left">
+            <button type="button">
+                <i class="icon-arrow-left"></i>
+            </button>
+        </div>
+        <div class="move-right">
+            <button type="button">
+                <i class="icon-arrow-right"></i>
+            </button>
+        </div>
+        
+        <div class="zoom-in">
+            <button type="button">
+                <i class="icon-zoom-in"></i>
+            </button>
+        </div>
+        
+        <div class="zoom-out">
+            <button type="button">
+                <i class="icon-zoom-out"></i>
+            </button>
+        </div>
+        
+        <div class="refresh">
+            <button type="button">
+                <i class="icon-resize-full"></i>
+            </button>
+        </div>
+        
+        <div class="nameSearch">
+            <button type="button">
+                Search
+            </button>
+        </div>
+
+        <div class="ui-widget">
+          <label for="tags">Names: </label>
+          <input id="tags">
+        </div>
+        
+        <div class="checkbox">
+            <input type="checkbox" name="cluster" value="false">Show clusters<br>
+        </div>
+                            
+ </div>   
+
+<script type='text/javascript'>
+
+$(document).ready(function() {
+    $( "#tags" ).smartAutoComplete({
+      source: 'data/miserablesNames.json',
+      maxResults: 5,
+      delay: 200,
+      forceSelect: true
+	});
+});
+
+// Add a method to the graph model that returns an
+// object with every neighbors of a node inside:
+sigma.classes.graph.addMethod('neighbors', function(nodeId) {
+	var k,
+        neighbors = {},
+        index = this.allNeighborsIndex[nodeId] || {};
+
+    for (k in index)
+      neighbors[k] = this.nodesIndex[k];
+
+    return neighbors;
+});
+
+s = new sigma({
+	container: 'container',
+	settings: {
+		minNodeSize: 6,
+		maxNodeSize: 12
+	}
+});
+
+plotJsonNetwork('data/miserablesCleanNoClust.json');
+
+// clear the sigma instance when the box is checked
+// then just re-draw with the different colors        
+        
+$(document).ready(function(){
+        $(":checkbox").change(function(){
+        if($(this).attr("checked"))
+        {
+            s.graph.clear();
+            plotJsonNetwork('data/miserablesClean.json');
+
+        }
+        else
+        {
+           s.graph.clear();
+           plotJsonNetwork('data/miserablesCleanNoClust.json');
+        
+        }
+    });
+}); 
+        
+// navigation buttons for the sigma instance
+
+var c = s.camera;
+
+$(document).ready(function(){
+  $(".move-right").bind("click",function(){
+      c.goTo({
+         x:c.x - 50, y:c.y
+      });     
+  });
+});
+
+$(document).ready(function(){
+  $(".move-left").bind("click",function(){
+      c.goTo({
+         x:c.x + 50, y:c.y
+      });     
+  });
+});
+
+$(document).ready(function(){
+  $(".move-up").bind("click",function(){
+      c.goTo({
+         x:c.x, y:c.y + 50
+      });     
+  });
+});
+
+$(document).ready(function(){
+  $(".move-down").bind("click",function(){
+      c.goTo({
+         x:c.x, y:c.y - 50
+      });     
+  });
+});
+
+$(document).ready(function(){
+  $(".zoom-in").bind("click",function(){
+      c.goTo({
+          ratio: c.ratio / c.settings('zoomingRatio')
+      });
+  });
+});
+
+$(document).ready(function(){
+  $(".zoom-out").bind("click",function(){
+      c.goTo({
+          ratio: c.ratio * c.settings('zoomingRatio')
+      });
+  });
+});
+
+$(document).ready(function(){
+  $(".refresh").bind("click",function(){
+      c.goTo({
+          x:0, y:0, ratio: 1
+      });     
+  });
+});
+        
+// re-locate graph to the searched node
+        
+$(document).ready(function(){
+  $(".nameSearch").bind("click",function(){
+        
+        nodeLabel = $('#tags').val();
+        
+        s.graph.nodes().forEach(function(node, i, a) {
+          if (node.label == nodeLabel) {
+              selectedNode = node;
+              return selectedNode;
+          }
+        });
+        
+        c.goTo({
+            x:selectedNode['read_cam0:x'],y:selectedNode['read_cam0:y'],ratio:.3
+      	}); 
+      	
+      	selectedNode = null;
+
+  });
+});
+
+</script>
+</body>
+</html>
+

@@ -1,0 +1,76 @@
+body {
+    margin: 0;
+}
+#container {
+    position: relative;
+    height: 800px;
+}
+
+/* Control panel: */
+.control-panel {
+  color: #666;
+  border-top: 1px #ccc dashed;
+  background: #fff;
+  position: relative;
+  height: 84px;
+}
+.move-up {
+  position: absolute;
+  top: 0;
+  right: 120px;
+  margin: 5px;
+}
+.move-down {
+  position: absolute;
+  top: 40px;
+  right: 120px;
+  margin: 5px;
+}
+.move-left {
+  position: absolute;
+  top: 20px;
+  right: 150px;
+  margin: 5px;
+}
+.move-right {
+  position: absolute;
+  top: 20px;
+  right: 90px;
+  margin: 5px;
+}
+.zoom-in {
+  position: absolute;
+  top: 0;
+  right: 50px;
+  margin: 5px;
+}
+.zoom-out {
+  position: absolute;
+  top: 40px;
+  right: 50px;
+  margin: 5px;
+}
+.refresh {
+  position: absolute;
+  top: 20px;
+  right: 50px;
+  margin: 5px;
+}
+.ui-widget {
+  position: absolute;
+  top: 10px;
+  left: 35px;
+  margin: 5px;
+}
+.checkbox {
+  position: absolute;
+  top: 50px;
+  left: 35px;
+  margin: 5px;
+}
+.nameSearch {
+  position: absolute;
+  top: 80px;
+  left: 35px;
+  margin: 5px;
+}
