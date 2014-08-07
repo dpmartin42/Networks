@@ -1,6 +1,3 @@
-body {
-    margin: 0;
-}
 #container {
     position: relative;
     height: 800px;
@@ -74,3 +71,10 @@ body {
   left: 35px;
   margin: 5px;
 }
+/* Autocomplete style */
+p#copyright { margin: 20px 10px; font-size: 90%; color: #999; }
+
+ul li {list-style: none; cursor: pointer;}
+li.smart_autocomplete_highlight {background-color: #9d9d9d;}
+ul { margin: 10px 0; padding: 5px; background-color: #e2e2e2; }
+*/

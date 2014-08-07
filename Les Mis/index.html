@@ -8,10 +8,12 @@
 	<script type="text/javascript" src="../js/sigma.min.js"></script>
 	<script type="text/javascript" src="../js/jquery-1.8.3.js"></script>
 	<script type="text/javascript" src="../js/jquery.smart_autocomplete.js"></script>
+	<script type="text/javascript" src="../js/jquery-ui.js"></script>
 	<script type="text/javascript" src="../js/sigma.parsers.json.js"></script>
 	<script type="text/javascript" src="../js/plotJsonNetwork.js"></script>
 	
 	<link rel="stylesheet" type="text/css" href="../css/network.css">
+	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css">
   
 </head>
@@ -78,15 +80,15 @@
             <input type="checkbox" name="cluster" value="false">Show clusters<br>
         </div>
                             
- </div>   
+ </div> 
 
 <script type='text/javascript'>
 
 $(document).ready(function() {
     $( "#tags" ).smartAutoComplete({
       source: 'data/miserablesNames.json',
-      maxResults: 5,
-      delay: 200,
+      maxResults: 8,
+      delay: 100,
       forceSelect: true
 	});
 });
@@ -107,8 +109,8 @@ sigma.classes.graph.addMethod('neighbors', function(nodeId) {
 s = new sigma({
 	container: 'container',
 	settings: {
-		minNodeSize: 6,
-		maxNodeSize: 12
+		minNodeSize: 4,
+		maxNodeSize: 10
 	}
 });
 
@@ -134,74 +136,19 @@ $(document).ready(function(){
     });
 }); 
         
-// navigation buttons for the sigma instance
-
-var c = s.camera;
-
-$(document).ready(function(){
-  $(".move-right").bind("click",function(){
-      c.goTo({
-         x:c.x - 50, y:c.y
-      });     
-  });
-});
-
-$(document).ready(function(){
-  $(".move-left").bind("click",function(){
-      c.goTo({
-         x:c.x + 50, y:c.y
-      });     
-  });
-});
-
-$(document).ready(function(){
-  $(".move-up").bind("click",function(){
-      c.goTo({
-         x:c.x, y:c.y + 50
-      });     
-  });
-});
-
-$(document).ready(function(){
-  $(".move-down").bind("click",function(){
-      c.goTo({
-         x:c.x, y:c.y - 50
-      });     
-  });
-});
-
-$(document).ready(function(){
-  $(".zoom-in").bind("click",function(){
-      c.goTo({
-          ratio: c.ratio / c.settings('zoomingRatio')
-      });
-  });
-});
-
-$(document).ready(function(){
-  $(".zoom-out").bind("click",function(){
-      c.goTo({
-          ratio: c.ratio * c.settings('zoomingRatio')
-      });
-  });
-});
-
-$(document).ready(function(){
-  $(".refresh").bind("click",function(){
-      c.goTo({
-          x:0, y:0, ratio: 1
-      });     
-  });
-});
-        
 // re-locate graph to the searched node
         
 $(document).ready(function(){
   $(".nameSearch").bind("click",function(){
+  
+  		// revert back using the original colors
         
         nodeLabel = $('#tags').val();
         
         s.graph.nodes().forEach(function(node, i, a) {
+        	
+        
+        
           if (node.label == nodeLabel) {
               selectedNode = node;
               return selectedNode;
@@ -209,8 +156,14 @@ $(document).ready(function(){
         });
         
         c.goTo({
-            x:selectedNode['read_cam0:x'],y:selectedNode['read_cam0:y'],ratio:.3
+            x:selectedNode['read_cam0:x'],y:selectedNode['read_cam0:y'],ratio:.5
       	}); 
+      	
+      	console.log(selectedNode);
+      	
+      	// highlight the selected node somehow?
+      	// selectedNode.color = '#FF0000';
+      	// s.refresh();
       	
       	selectedNode = null;
 
@@ -218,6 +171,15 @@ $(document).ready(function(){
 });
 
 </script>
+
+<!--highlight neighboring nodes on a user click-->
+
+<script type="text/javascript" src="../js/plotNeighbors.js"></script>
+
+<!--navigation buttons for the sigma instance-->
+
+<script type="text/javascript" src="../js/navigationButtons.js"></script>
+
 </body>
 </html>
 
