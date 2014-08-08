@@ -136,35 +136,50 @@ $(document).ready(function(){
     });
 }); 
         
-// re-locate graph to the searched node
+// re-locate graph to the searched node and highlight it
         
 $(document).ready(function(){
   $(".nameSearch").bind("click",function(){
-  
-  		// revert back using the original colors
         
         nodeLabel = $('#tags').val();
         
         s.graph.nodes().forEach(function(node, i, a) {
         	
-        
-        
           if (node.label == nodeLabel) {
               selectedNode = node;
               return selectedNode;
           }
+          
         });
         
         c.goTo({
-            x:selectedNode['read_cam0:x'],y:selectedNode['read_cam0:y'],ratio:.5
+            x:selectedNode['read_cam0:x'],y:selectedNode['read_cam0:y'],ratio:1
       	}); 
-      	
-      	console.log(selectedNode);
-      	
-      	// highlight the selected node somehow?
-      	// selectedNode.color = '#FF0000';
-      	// s.refresh();
-      	
+ 
+      	var nodeId = selectedNode.id,
+        toKeep = s.graph.neighbors(nodeId);
+    	toKeep[nodeId] = selectedNode;
+
+    	s.graph.nodes().forEach(function(n) {
+        	if (toKeep[n.id])
+            	n.color = n.originalColor;
+        	else
+            	n.color = '#eee';
+    	});
+
+    	s.graph.edges().forEach(function(e) {
+        	if (toKeep[e.source] && toKeep[e.target])
+        		e.color = e.originalColor;
+        	else
+            	e.color = '#eee';
+    	});
+
+    	// Since the data has been modified, we need to
+    	// call the refresh method to make the colors
+    	// update effective.
+   		s.refresh();
+    
+      	// delete value so it doesn't revert to a previous search
       	selectedNode = null;
 
   });
