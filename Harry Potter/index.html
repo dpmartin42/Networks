@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title> The Wizarding Network of Harry Potter | by dpmartin42</title>
+  
+	<!-- Import Sigma JS, JQuery, and css -->
+	<script type="text/javascript" src="../js/sigma.min.js"></script>
+	<script type="text/javascript" src="../js/jquery-1.8.3.js"></script>
+	<script type="text/javascript" src="../js/jquery.smart_autocomplete.js"></script>
+	<script type="text/javascript" src="../js/jquery-ui.js"></script>
+	<script type="text/javascript" src="../js/sigma.parsers.json.js"></script>
+	<script type="text/javascript" src="../js/plotJsonNetwork.js"></script>
+	<script type="text/javascript" src="../js/printMetadata.js"></script>
+	<script type="text/javascript" src="../js/jquery.fancybox.js"></script>
+	<link rel="stylesheet" type="text/css" href="../css/network.css">
+	<link rel="stylesheet" type="text/css" href="../css/jquery.fancybox.css">
+	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css">
+  
+</head>
+
+<body>
+  <div id="main">
+  
+  <div class="slider" id="slider" style="display:none"></div>
+  
+  <div class="instructions">
+  
+  <h1>The Wizarding Network of Harry Potter</h1>
+  
+  <p>
+  Using the navigation toolbar below, users can explore the relationships of 178 characters from the 
+  Harry Potter universe. Either clicking on a node or searching for a name will highlight that character, and bring a slider on screen
+  that contains all of that particular character's connections. Clicking on any of these characters on
+  the slider will bring up their wiki page on screen (please be patient, this takes a few seconds).
+  </p>
+  
+  <p>
+  The list of 178 characters was taken from 
+  <a href="http://en.wikipedia.org/wiki/List_of_Harry_Potter_characters" target="_blank">wikipedia</a>, and the connections between 
+  characters were scraped from the relevant <a href="http://harrypotter.wikia.com/wiki/Main_Page" target="_blank">Harry Potter wikia sites</a>.
+  Note that this assumes the all characters who are hyperlinked on a given character page share some "logical connection"
+  with said character in the Harry Potter universe. However, some links may be incorrect/missing given this assumption.
+  </p>
+  
+  <p>
+  Data was scraped in R using <a href="https://github.com/hadley/rvest" target="_blank">rvest</a>,
+  cleaned in R using <a href="http://igraph.org/r/" target="_blank">igraph</a>,
+  and visualized using the <a href="http://sigmajs.org/" target="_blank">sigma.js</a> library.
+  For more information regarding the creation of this network and for the data and code, see my 
+  <a href="https://github.com/dpmartin42/Networks" target="_blank">GitHub</a> page. 
+  </p>
+  
+  </div>
+  
+    <div class="sigma-container">
+        <div id="container"></div>
+    </div>
+    
+    <div class="control-panel">
+        <div class="move-up">
+            <button type="button">
+                <i class="icon-arrow-up"></i>
+            </button>
+        </div>
+        <div class="move-down">
+            <button type="button">
+                <i class="icon-arrow-down"></i>
+            </button>
+        </div>
+        <div class="move-left">
+            <button type="button">
+                <i class="icon-arrow-left"></i>
+            </button>
+        </div>
+        <div class="move-right">
+            <button type="button">
+                <i class="icon-arrow-right"></i>
+            </button>
+        </div>
+        
+        <div class="zoom-in">
+            <button type="button">
+                <i class="icon-zoom-in"></i>
+            </button>
+        </div>
+        
+        <div class="zoom-out">
+            <button type="button">
+                <i class="icon-zoom-out"></i>
+            </button>
+        </div>
+        
+        <div class="refresh">
+            <button type="button">
+                <i class="icon-resize-full"></i>
+            </button>
+        </div>
+        
+        <div class="nameSearch">
+            <button type="button">
+                Search
+            </button>
+        </div>
+
+        <div class="ui-widget">
+          <label for="tags">Names: </label>
+          <input id="tags">
+        </div>
+        
+        <!--<div class="checkbox">
+            <input type="checkbox" name="cluster" value="false">Show clusters<br>
+        </div>-->
+                            
+ </div> 
+
+<script type='text/javascript'>
+
+$(document).ready(function() {
+    $(".iframe").fancybox({
+        type: 'iframe'
+    });
+});
+
+
+</script>
+
+<script type='text/javascript'>
+
+$(document).ready(function() {
+    $( "#tags" ).smartAutoComplete({
+      source: 'data/HP_names.json',
+      maxResults: 8,
+      delay: 100,
+      forceSelect: true
+	});
+});
+
+// Add a method to the graph model that returns an
+// object with every neighbors of a node inside:
+sigma.classes.graph.addMethod('neighbors', function(nodeId) {
+	var k,
+        neighbors = {},
+        index = this.allNeighborsIndex[nodeId] || {};
+
+    for (k in index)
+      neighbors[k] = this.nodesIndex[k];
+
+    return neighbors;
+});
+
+s = new sigma({
+	container: 'container',
+	settings: {
+		minNodeSize: 6,
+		maxNodeSize: 14,
+		minEdgeSize: 0.1,
+		maxEdgeSize: 2,
+		labelThreshold: 20,
+		singleHover: false
+	}
+});
+
+plotJsonNetwork('data/HP_network_clean.json');
+
+// re-locate graph to the searched node and highlight it in a different color
+        
+$(document).ready(function(){
+  $(".nameSearch").bind("click",function(){
+        
+        nodeLabel = $('#tags').val();
+        
+        s.graph.nodes().forEach(function(node, i, a) {
+        	
+          if (node.label == nodeLabel) {
+              selectedNode = node;
+              return selectedNode;
+          }
+          
+        });
+        
+        //c.goTo({
+        //    x:selectedNode['read_cam0:x'],y:selectedNode['read_cam0:y'],ratio:1
+      	//}); 
+ 
+ 		// trigger user click here and delete up to refresh below
+ 		// keep selectedNode = null;
+ 
+      	var nodeId = selectedNode.id,
+        toKeep = s.graph.neighbors(nodeId);
+    	toKeep[nodeId] = selectedNode;
+
+    	s.graph.nodes().forEach(function(n) {
+        	if (toKeep[n.id])
+            	n.color = n.originalColor;
+        	else
+            	n.color = '#eee';
+    	});
+    	
+    	selectedNode.color = "#eeba30";
+
+    	s.graph.edges().forEach(function(e) {
+        	if (toKeep[e.source] && toKeep[e.target]){
+        		e.hidden = false;
+        		e.color = e.originalColor;	
+        	}
+        	else
+            	e.hidden = true;
+    	});
+    	
+
+    	// Since the data has been modified, we need to
+    	// call the refresh method to make the colors
+    	// update effective.
+   		s.refresh();
+   		
+   		// display user information on click
+   		printMetadata(selectedNode);
+      
+      	if($(".slider").is(":hidden")){
+      		$(".slider").toggle("slide", {direction: 'right'}, 1000);
+      	}    
+    
+      	// delete value so it doesn't revert to a previous search
+      	selectedNode = null;
+
+  });
+});
+
+</script>
+
+<!--highlight neighboring nodes on a user click-->
+
+<script type="text/javascript" src="js/plotNeighbors.js"></script>
+
+<!--navigation buttons for the sigma instance-->
+
+<script type="text/javascript" src="js/navigationButtons.js"></script>
+
+</body>
+</html>
+
